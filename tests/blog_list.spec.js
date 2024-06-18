@@ -1,9 +1,11 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
+const testHelper = require('./test_helper')
 const baseUrl = 'http://localhost:5173'
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post(`${baseUrl}/api/testing/reset`)
+
     await request.post(`${baseUrl}/api/users`, {
       data: {
         name: 'deepesh',
@@ -50,6 +52,20 @@ describe('Blog app', () => {
       ).not.toBeVisible()
 
       await expect(page.getByText('blogs')).not.toBeVisible()
+    })
+
+    test('a new blog can be created', async ({ page }) => {
+      await testHelper.logUserIn(page, 'deep_learning_42', 'deepesh')
+
+      await page.getByRole('button', { name: 'New Blog' }).click()
+      await page.locator('#title').fill('a playwright blog test')
+      await page.locator('#author').fill('myself')
+      await page.locator('#url').fill('someurl.com')
+      await page.getByRole('button', { name: 'Add blog' }).click()
+
+      await expect(
+        page.getByText('a playwright blog test, myself')
+      ).toBeVisible()
     })
   })
 })
