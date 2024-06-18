@@ -1,5 +1,6 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
 const testHelper = require('./test_helper')
+const exp = require('constants')
 const baseUrl = 'http://localhost:5173'
 
 describe('Blog app', () => {
@@ -53,7 +54,9 @@ describe('Blog app', () => {
 
       await expect(page.getByText('blogs')).not.toBeVisible()
     })
+  })
 
+  describe('When logged in', () => {
     test('a new blog can be created', async ({ page }) => {
       await testHelper.logUserIn(page, 'deep_learning_42', 'deepesh')
 
@@ -63,9 +66,18 @@ describe('Blog app', () => {
       await page.locator('#url').fill('someurl.com')
       await page.getByRole('button', { name: 'Add blog' }).click()
 
-      await expect(
-        page.getByText('a playwright blog test, myself')
-      ).toBeVisible()
+      const blogDiv = await page.locator('.blog')
+
+      await expect(blogDiv).toContainText('a playwright blog test, myself')
+    })
+
+    test('can like a blog', async ({ page }) => {
+      await testHelper.logUserIn(page, 'deep_learning_42', 'deepesh')
+      await testHelper.createBlog(page)
+      await page.getByRole('button', { name: 'View' }).click()
+      await page.getByRole('button', { name: 'Like' }).click()
+
+      await expect(page.getByText('Likes: 1')).toBeVisible()
     })
   })
 })
