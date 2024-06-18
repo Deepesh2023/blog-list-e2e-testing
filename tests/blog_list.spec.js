@@ -15,6 +15,14 @@ describe('Blog app', () => {
       },
     })
 
+    await request.post(`${baseUrl}/api/users`, {
+      data: {
+        name: 'binil',
+        username: 'binil_balu',
+        password: 'binil',
+      },
+    })
+
     await page.goto(baseUrl)
   })
 
@@ -88,6 +96,25 @@ describe('Blog app', () => {
 
       await expect(
         page.getByText('another helper blog, myself')
+      ).not.toBeVisible()
+    })
+
+    test('only the user added the blog can see the delete button', async ({
+      page,
+    }) => {
+      await testHelper.logUserIn(page, 'deep_learning_42', 'deepesh')
+      await testHelper.createBlog(page)
+
+      const blogDiv = await page.locator('.blog')
+      await expect(blogDiv).toContainText('another helper blog, myself')
+
+      await page.getByRole('button', { name: 'Logout' }).click()
+
+      await testHelper.logUserIn(page, 'binil_balu', 'binil')
+
+      await expect(blogDiv).toContainText('another helper blog, myself')
+      await expect(
+        page.getByRole('button', { name: 'Delete' })
       ).not.toBeVisible()
     })
   })

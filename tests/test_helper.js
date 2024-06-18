@@ -1,6 +1,6 @@
 const logUserIn = async (page, username, password) => {
-  await page.locator('#username').fill('deep_learning_42')
-  await page.locator('#password').fill('deepesh')
+  await page.locator('#username').fill(username)
+  await page.locator('#password').fill(password)
   await page.getByRole('button', { name: 'Login' }).click()
 }
 
