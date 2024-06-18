@@ -79,5 +79,16 @@ describe('Blog app', () => {
 
       await expect(page.getByText('Likes: 1')).toBeVisible()
     })
+
+    test('can delete a blog', async ({ page }) => {
+      await testHelper.logUserIn(page, 'deep_learning_42', 'deepesh')
+      await testHelper.createBlog(page)
+      await page.on('dialog', (dialog) => dialog.accept())
+      await page.getByRole('button', { name: 'Delete' }).click()
+
+      await expect(
+        page.getByText('another helper blog, myself')
+      ).not.toBeVisible()
+    })
   })
 })
